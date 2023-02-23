@@ -10,7 +10,7 @@ android {
     defaultConfig {
         applicationId "com.dhy.splitinstaller"
         minSdk 21
-        targetSdk 30
+        targetSdk 33
         versionCode 1
         versionName "1.0"
 
@@ -34,6 +34,9 @@ android {
         viewBinding true
     }
     dynamicFeatures = [':plugin']
+    aaptOptions {
+        additionalParameters "--package-id", "0x80"//must > 0x7F
+    }
 }
 
 dependencies {

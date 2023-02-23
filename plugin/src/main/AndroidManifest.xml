@@ -13,10 +13,8 @@
         <dist:fusing dist:include="true" />
     </dist:module>
 
-    <application>
-        <activity
-            android:name=".PluginActivity"
-            android:exported="true" />
+    <application tools:ignore="MissingApplicationIcon">
+        <activity android:name=".PluginActivity" />
     </application>
 
 </manifest>
