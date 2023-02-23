@@ -5,8 +5,8 @@ import android.content.Context
 import android.util.ArrayMap
 import android.util.Log
 import androidx.annotation.Keep
-import com.donald.dps.lib.field
-import com.donald.dps.lib.method
+import com.dhy.easyreflect.field
+import com.dhy.easyreflect.method
 import com.donalddu.splitinstaller.SplitInstaller.TAG
 import dalvik.system.BaseDexClassLoader
 import dalvik.system.PathClassLoader

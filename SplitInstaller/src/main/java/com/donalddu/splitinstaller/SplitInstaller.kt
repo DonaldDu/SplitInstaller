@@ -4,8 +4,8 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.util.Log
-import com.donald.dps.lib.field
-import com.donald.dps.lib.method
+import com.dhy.easyreflect.field
+import com.dhy.easyreflect.method
 import org.chickenhook.restrictionbypass.Unseal
 import java.io.File
 import java.lang.reflect.Proxy
