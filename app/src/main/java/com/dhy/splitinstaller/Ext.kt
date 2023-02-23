@@ -8,8 +8,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 
 fun Activity.startComponent(className: String) {
-//    val intent = Intent().setClassName(packageName, className)
-    val intent = Intent(this, Class.forName(className))
+    val intent = Intent().setClassName(packageName, className)
     startActivity(intent)
 }
 
