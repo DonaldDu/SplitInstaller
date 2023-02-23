@@ -1,8 +1,5 @@
 package com.donalddu.splitinstaller
 
-import android.content.Context
-import com.donald.dps.lib.DynamicProviderSwitch
-
 object SplitInstalledDispatcher {
     private val listeners: MutableSet<SplitInstalledListener> = mutableSetOf()
     internal fun onSplitInstalled() {
@@ -25,12 +22,3 @@ interface SplitInstalledListener {
     fun onSplitInstalled()
 }
 
-class DynamicProviderSwitchListener(private val context: Context) : SplitInstalledListener {
-    private val providerSwitch by lazy {
-        DynamicProviderSwitch(context, false, compatProvider = false)
-    }
-
-    override fun onSplitInstalled() {
-        providerSwitch.startDynamicProviders()
-    }
-}

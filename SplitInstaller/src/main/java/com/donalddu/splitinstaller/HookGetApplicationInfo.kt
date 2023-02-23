@@ -18,9 +18,9 @@ internal class HookGetApplicationInfo(private val origin: Any) : InvocationHandl
         //mPM.getPackageInfo(packageName, flags, mContext.getUserId())
         return if (method.name == "getApplicationInfo") {
             Log.i(TAG, "Hooking getApplicationInfo")
-            val aInfo = method.invoke(origin, *args) as ApplicationInfo
-            loadSplits(aInfo)
-            aInfo
+            val info = method.invoke(origin, *args) as ApplicationInfo
+            loadSplits(info)
+            info
         } else {
             method.invoke(origin, *args)
         }

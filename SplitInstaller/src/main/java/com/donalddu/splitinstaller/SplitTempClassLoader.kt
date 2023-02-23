@@ -4,6 +4,9 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.util.ArrayMap
 import android.util.Log
+import androidx.annotation.Keep
+import com.donald.dps.lib.field
+import com.donald.dps.lib.method
 import com.donalddu.splitinstaller.SplitInstaller.TAG
 import dalvik.system.BaseDexClassLoader
 import dalvik.system.PathClassLoader
@@ -16,8 +19,6 @@ internal class SplitTempClassLoader(
     private val loadedApk: Any,
     private val optimizedDirectory: File
 ) : PathClassLoader("", parent) {
-    @Suppress("PrivatePropertyName")
-
     private val pathListF = BaseDexClassLoader::class.field("pathList")
     private val pathList by lazy { pathListF.get(parent) }
     private val addDexPathDelegate by lazy {
@@ -27,6 +28,7 @@ internal class SplitTempClassLoader(
         pathList.javaClass.method("addNativePath", Collection::class)
     }
 
+    @Keep
     fun addDexPath(dexPath: String) {
         Log.i(TAG, "addDexPath $dexPath")
         addDexPathDelegate.invoke(pathList, dexPath, optimizedDirectory)
@@ -35,6 +37,7 @@ internal class SplitTempClassLoader(
         SplitInstalledDispatcher.onSplitInstalled()
     }
 
+    @Keep
     fun addNativePath(libPaths: Collection<String>) {
         Log.i(TAG, "addNativePath ${libPaths.joinToString()}")
         addNativePathDelegate.invoke(pathList, libPaths)

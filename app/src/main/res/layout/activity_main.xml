@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -8,9 +7,33 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
-    <TextView
+    <Button
+        android:id="@+id/btInstallPlugin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!" />
+        android:text="InstallPlugin with cache"
+        android:textAllCaps="false" />
+
+    <Button
+        android:id="@+id/btShowPluginPage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="ShowPluginPage"
+        android:textAllCaps="false" />
+
+    <Button
+        android:id="@+id/btLoadPluginAssets"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="loadPluginAssets"
+        android:textAllCaps="false" />
+
+
+    <Button
+        android:id="@+id/btClearApplicationUserData"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="clearApplicationUserData"
+        android:textAllCaps="false" />
 
 </LinearLayout>

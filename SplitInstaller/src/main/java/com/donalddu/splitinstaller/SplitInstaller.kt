@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.util.Log
+import com.donald.dps.lib.field
+import com.donald.dps.lib.method
 import org.chickenhook.restrictionbypass.Unseal
 import java.io.File
 import java.lang.reflect.Proxy
@@ -12,24 +14,23 @@ import java.lang.reflect.Proxy
 object SplitInstaller {
     internal const val TAG = "SplitLoader"
 
+    init {
+        initRestrictionBypass()
+    }
+
     /**
      * @param splits apk files to load append
      * */
     @JvmStatic
     fun load(context: Context, splitOptDir: File, splits: Set<File>) {
-        initRestrictionBypass()
-        if (hookGetApplicationInfo == null) {
-            SplitInstalledDispatcher.addListener(DynamicProviderSwitchListener(context))
-            hookGetApplicationInfo(context)
-        }
-        hookGetApplicationInfo!!.addSplits(splits)
+        if (hookGetApplicationInfo.splits.containsAll(splits)) return
+
+        hookGetApplicationInfo.addSplits(splits)
         SplitTempClassLoader.install(context, splitOptDir)
         dispatchPackageBroadcast(context)
     }
 
-    private var restrictionBypass = false
     private fun initRestrictionBypass() {
-        if (restrictionBypass) return
         if (Build.VERSION.SDK_INT >= 28) {
             try {
                 Unseal.unseal()
@@ -37,7 +38,6 @@ object SplitInstaller {
                 Log.e("BypassProvider", "Unable to unseal hidden api access", e)
             }
         }
-        restrictionBypass = true
     }
 
     private fun dispatchPackageBroadcast(context: Context) {
@@ -45,21 +45,19 @@ object SplitInstaller {
             .field("mAppThread")
             .get(currentActivityThread)
 
-        Class.forName("android.app.ActivityThread\$ApplicationThread")
+        mAppThread.javaClass
             .method("dispatchPackageBroadcast", Int::class, Array<String>::class)
             .invoke(mAppThread, 3, arrayOf(context.packageName))
     }
 
-    private var hookGetApplicationInfo: HookGetApplicationInfo? = null
-    private fun hookGetApplicationInfo(context: Context) {
-        val sPackageManagerField = Class.forName("android.app.ActivityThread")
-            .field("sPackageManager")
-
+    private val hookGetApplicationInfo: HookGetApplicationInfo by lazy {
+        val sPackageManagerField = Class.forName("android.app.ActivityThread").field("sPackageManager")
         val origin = sPackageManagerField.get(currentActivityThread)!!
-        hookGetApplicationInfo = HookGetApplicationInfo(origin)
+        val hook = HookGetApplicationInfo(origin)
         val packageManagerClazz = Class.forName("android.content.pm.IPackageManager")
-        val delegate = Proxy.newProxyInstance(context.classLoader, arrayOf(packageManagerClazz), hookGetApplicationInfo!!)
+        val delegate = Proxy.newProxyInstance(SplitInstaller::class.java.classLoader, arrayOf(packageManagerClazz), hook)
         sPackageManagerField.set(currentActivityThread, delegate)
+        hook
     }
 
     private val currentActivityThread by lazy {

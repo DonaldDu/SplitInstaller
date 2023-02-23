@@ -1,6 +1,8 @@
 package com.donalddu.splitinstaller
 
 import android.app.Application
+import com.donald.dps.lib.field
+import com.donald.dps.lib.method
 import org.junit.After
 import org.junit.Assert
 import org.junit.Test
