@@ -1,8 +1,6 @@
 package com.donalddu.splitinstaller
 
 import android.annotation.SuppressLint
-import android.content.Context
-import android.util.ArrayMap
 import android.util.Log
 import androidx.annotation.Keep
 import com.dhy.easyreflect.field
@@ -11,12 +9,11 @@ import com.donalddu.splitinstaller.SplitInstaller.TAG
 import dalvik.system.BaseDexClassLoader
 import dalvik.system.PathClassLoader
 import java.io.File
-import java.lang.ref.WeakReference
 
 @SuppressLint("PrivateApi")
 internal class SplitTempClassLoader(
     parent: ClassLoader,
-    private val loadedApk: Any,
+    private val mDefaultClassLoader: FieldDelegate<ClassLoader>,
     private val optimizedDirectory: File
 ) : PathClassLoader("", parent) {
     private val pathListF = BaseDexClassLoader::class.field("pathList")
@@ -32,8 +29,8 @@ internal class SplitTempClassLoader(
     fun addDexPath(dexPath: String) {
         Log.i(TAG, "addDexPath $dexPath")
         addDexPathDelegate.invoke(pathList, dexPath, optimizedDirectory)
-        loadedApkClassLoaderField.set(loadedApk, parent)
-        Log.i(TAG, "restore to default loadedApkClassLoader")
+        mDefaultClassLoader.value = parent//restore to default classLoader
+        Log.i(TAG, "restore to default classLoader")
         SplitInstalledDispatcher.onSplitInstalled()
     }
 
@@ -44,38 +41,22 @@ internal class SplitTempClassLoader(
     }
 
     companion object {
+        private var temp: SplitTempClassLoader? = null
+
         /**
          * replace LoadedApk ClassLoader to hook addDexPath with optimizedDirectory
          * */
-        fun install(context: Context, splitOptDir: File) {
-            val loadedApk = getLoadedApk(context)
-            val loadedApkClassLoader = loadedApkClassLoaderField.get(loadedApk) as ClassLoader
+        fun install(packageName: String, splitOptDir: File) {
+            val mDefaultClassLoader = getDefaultClassLoaderDelegate(packageName)
+            val loadedApkClassLoader = mDefaultClassLoader.value!!
             if (loadedApkClassLoader !is SplitTempClassLoader) {
-                val temp = SplitTempClassLoader(loadedApkClassLoader, loadedApk, splitOptDir)
-                loadedApkClassLoaderField.set(loadedApk, temp)
+                temp = temp ?: SplitTempClassLoader(loadedApkClassLoader, mDefaultClassLoader, splitOptDir)
+                mDefaultClassLoader.value = temp
             }
         }
 
-        @SuppressLint("PrivateApi")
-        private fun getLoadedApk(context: Context): Any {
-            val mPackages = currentActivityThread.javaClass.field("mPackages").get(currentActivityThread) as ArrayMap<*, *>
-            val loadedApkRef = mPackages[context.packageName] as WeakReference<*>
-            return loadedApkRef.get()!!
-        }
-
-        private val currentActivityThread by lazy {
-            Class.forName("android.app.ActivityThread")
-                .method("currentActivityThread")
-                .invoke(null)!!
-        }
-
-        private val loadedApkClassLoaderField by lazy {
-            val loadedApkClazz = Class.forName("android.app.LoadedApk")
-            try {
-                loadedApkClazz.field("mDefaultClassLoader")
-            } catch (e: Exception) {
-                loadedApkClazz.field("mClassLoader")
-            }
+        private fun getDefaultClassLoaderDelegate(packageName: String): FieldDelegate<ClassLoader> {
+            return temp?.mDefaultClassLoader ?: FieldDelegate(ReflectHelper.getLoadedApk(packageName), "mDefaultClassLoader", "mClassLoader")
         }
     }
 }

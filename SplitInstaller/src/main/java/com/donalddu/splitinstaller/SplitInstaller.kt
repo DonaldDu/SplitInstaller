@@ -4,8 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.util.Log
-import com.dhy.easyreflect.field
-import com.dhy.easyreflect.method
 import org.chickenhook.restrictionbypass.Unseal
 import java.io.File
 import java.lang.reflect.Proxy
@@ -26,8 +24,8 @@ object SplitInstaller {
         if (hookGetApplicationInfo.splits.containsAll(splits)) return
 
         hookGetApplicationInfo.addSplits(splits)
-        SplitTempClassLoader.install(context, splitOptDir)
-        dispatchPackageBroadcast(context)
+        SplitTempClassLoader.install(context.packageName, splitOptDir)
+        ReflectHelper.dispatchPackageBroadcast(context.packageName)
     }
 
     private fun initRestrictionBypass() {
@@ -40,29 +38,12 @@ object SplitInstaller {
         }
     }
 
-    private fun dispatchPackageBroadcast(context: Context) {
-        val mAppThread = Class.forName("android.app.ActivityThread")
-            .field("mAppThread")
-            .get(currentActivityThread)
-
-        mAppThread.javaClass
-            .method("dispatchPackageBroadcast", Int::class, Array<String>::class)
-            .invoke(mAppThread, 3, arrayOf(context.packageName))
-    }
-
     private val hookGetApplicationInfo: HookGetApplicationInfo by lazy {
-        val sPackageManagerField = Class.forName("android.app.ActivityThread").field("sPackageManager")
-        val origin = sPackageManagerField.get(currentActivityThread)!!
-        val hook = HookGetApplicationInfo(origin)
+        val sPackageManager = ReflectHelper.sPackageManager
+        val hook = HookGetApplicationInfo(sPackageManager.value!!)
         val packageManagerClazz = Class.forName("android.content.pm.IPackageManager")
         val delegate = Proxy.newProxyInstance(SplitInstaller::class.java.classLoader, arrayOf(packageManagerClazz), hook)
-        sPackageManagerField.set(currentActivityThread, delegate)
+        sPackageManager.value = delegate
         hook
-    }
-
-    private val currentActivityThread by lazy {
-        Class.forName("android.app.ActivityThread")
-            .method("currentActivityThread")
-            .invoke(null)
     }
 }
