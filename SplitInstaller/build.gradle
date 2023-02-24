@@ -33,8 +33,9 @@ android {
             includeAndroidResources = true
         }
     }
+    buildFeatures.buildConfig = false
 }
-
+mavenPublish("com.github.DonaldDu:${rootProject.name}:0.1")
 dependencies {
     //noinspection GradleDependency
     implementation 'androidx.annotation:annotation:1.2.0'

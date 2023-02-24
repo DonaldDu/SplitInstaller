@@ -42,7 +42,7 @@ object SplitInstaller {
         val sPackageManager = ReflectHelper.sPackageManager
         val hook = HookGetApplicationInfo(sPackageManager.value!!)
         val packageManagerClazz = Class.forName("android.content.pm.IPackageManager")
-        val delegate = Proxy.newProxyInstance(SplitInstaller::class.java.classLoader, arrayOf(packageManagerClazz), hook)
+        val delegate = Proxy.newProxyInstance(javaClass.classLoader, arrayOf(packageManagerClazz), hook)
         sPackageManager.value = delegate
         hook
     }
