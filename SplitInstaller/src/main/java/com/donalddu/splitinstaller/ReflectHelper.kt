@@ -8,19 +8,18 @@ import java.lang.reflect.Method
 
 @SuppressLint("PrivateApi")
 object ReflectHelper {
-    internal val currentActivityThread by lazy {
+    private val currentActivityThread by lazy {
         Class.forName("android.app.ActivityThread")
             .method("currentActivityThread")
             .invoke(null)
     }
-    internal val mAppThread: Any get() = currentActivityThread.getFieldValue("mAppThread")!!
+    private val mAppThread: Any get() = currentActivityThread.getFieldValue("mAppThread")!!
     internal val sPackageManager: FieldDelegate<Any> get() = FieldDelegate(currentActivityThread, "sPackageManager")
-    internal val mPackages: ArrayMap<*, *> get() = currentActivityThread.getFieldValue("mPackages") as ArrayMap<*, *>
+    private val mPackages: ArrayMap<*, *> get() = currentActivityThread.getFieldValue("mPackages") as ArrayMap<*, *>
 
-    val dispatchPackageBroadcastMethod: Method
+    private val dispatchPackageBroadcastMethod: Method
         get():Method {
-            return mAppThread.javaClass
-                .method("dispatchPackageBroadcast", Int::class, Array<String>::class)
+            return mAppThread.javaClass.method("dispatchPackageBroadcast", Int::class, Array<String>::class)
         }
 
     fun dispatchPackageBroadcast(packageName: String) {
