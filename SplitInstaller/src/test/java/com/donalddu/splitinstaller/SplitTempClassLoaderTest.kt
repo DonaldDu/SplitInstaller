@@ -1,7 +1,7 @@
 package com.donalddu.splitinstaller
 
-import com.donald.dps.lib.field
-import com.donald.dps.lib.method
+import com.dhy.easyreflect.field
+import com.dhy.easyreflect.method
 import dalvik.system.BaseDexClassLoader
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -9,7 +9,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import java.io.File
 
-@Config(minSdk = 24, manifest = Config.NONE)
+@Config(minSdk = 28, manifest = Config.NONE)
 @RunWith(RobolectricTestRunner::class)
 class SplitTempClassLoaderTest {
 

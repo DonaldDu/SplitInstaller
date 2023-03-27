@@ -1,8 +1,8 @@
 package com.donalddu.splitinstaller
 
 import android.app.Application
-import com.donald.dps.lib.field
-import com.donald.dps.lib.method
+import com.dhy.easyreflect.field
+import com.dhy.easyreflect.method
 import org.junit.After
 import org.junit.Assert
 import org.junit.Test
@@ -10,7 +10,10 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
-@Config(minSdk = 21, manifest = Config.NONE, application = Application::class)
+/**
+ * 分成两块测试，不然内存溢出。 [21,28], [29,++]
+ * */
+@Config(minSdk = 21, maxSdk = 28, manifest = Config.NONE, application = Application::class)
 @RunWith(RobolectricTestRunner::class)
 open class SplitInstallerTest {
 
