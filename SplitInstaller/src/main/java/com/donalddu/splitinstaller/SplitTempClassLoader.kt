@@ -2,7 +2,6 @@ package com.donalddu.splitinstaller
 
 import android.annotation.SuppressLint
 import android.util.Log
-import androidx.annotation.Keep
 import com.dhy.easyreflect.field
 import com.dhy.easyreflect.method
 import com.donalddu.splitinstaller.SplitInstaller.TAG
@@ -25,7 +24,6 @@ internal class SplitTempClassLoader(
         pathList.javaClass.method("addNativePath", Collection::class)
     }
 
-    @Keep
     fun addDexPath(dexPath: String) {
         Log.i(TAG, "addDexPath $dexPath")
         addDexPathDelegate.invoke(pathList, dexPath, optimizedDirectory)
@@ -34,7 +32,6 @@ internal class SplitTempClassLoader(
         SplitInstalledDispatcher.onSplitInstalled()
     }
 
-    @Keep
     fun addNativePath(libPaths: Collection<String>) {
         Log.i(TAG, "addNativePath ${libPaths.joinToString()}")
         addNativePathDelegate.invoke(pathList, libPaths)
