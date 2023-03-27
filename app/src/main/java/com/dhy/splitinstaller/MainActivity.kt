@@ -8,6 +8,7 @@ import com.donalddu.splitinstaller.SplitInstaller
 import java.io.File
 
 class MainActivity : AppCompatActivity() {
+    private val context get() = this
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -19,11 +20,11 @@ class MainActivity : AppCompatActivity() {
                 } catch (e: Exception) {
                     e.toString()
                 }
-                Toast.makeText(this@MainActivity, msg, Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
             }
 
             btInstallPlugin.setOnClickListener {
-                SplitInstaller.load(this@MainActivity, cacheDir, setOf(pluginApk))
+                SplitInstaller.load(context, cacheDir, setOf(pluginApk))
             }
 
             btClearApplicationUserData.setOnClickListener {
@@ -35,7 +36,7 @@ class MainActivity : AppCompatActivity() {
                     startComponent("com.dhy.plugin.PluginActivity")
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    Toast.makeText(this@MainActivity, e.toString(), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, e.toString(), Toast.LENGTH_SHORT).show()
                 }
             }
         }
