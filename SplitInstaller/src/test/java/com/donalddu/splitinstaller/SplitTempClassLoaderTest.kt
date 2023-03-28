@@ -19,6 +19,24 @@ class SplitTempClassLoaderTest {
      * */
     @Test
     fun addDexPath() {
+        BaseDexClassLoader::class.method("addDexPath", String::class)
+    }
+
+    /**
+     * Android9.0(28)
+     * sdk api level [28(9.0),33+]
+     * */
+    @Test
+    fun addNativePath() {
+        BaseDexClassLoader::class.method("addNativePath", Collection::class)
+    }
+
+    /**
+     * Android7.0(24)
+     * sdk api level [24,33+]
+     * */
+    @Test
+    fun pathListAddDexPath() {
         val pathListF = BaseDexClassLoader::class.field("pathList")
         pathListF.type.method("addDexPath", String::class, File::class)
     }
@@ -28,7 +46,7 @@ class SplitTempClassLoaderTest {
      * sdk api level [28(9.0),33+]
      * */
     @Test
-    fun addNativePath() {
+    fun pathListAddNativePath() {
         val pathListF = BaseDexClassLoader::class.field("pathList")
         pathListF.type.method("addNativePath", Collection::class)
     }

@@ -28,8 +28,7 @@ open class SplitInstallerTest {
 
     @Test
     fun hookGetApplicationInfo() {
-        val sPackageManagerField = Class.forName("android.app.ActivityThread")
-            .field("sPackageManager")
+        val sPackageManagerField = Class.forName("android.app.ActivityThread").field("sPackageManager")
         Assert.assertEquals("android.content.pm.IPackageManager", sPackageManagerField.type.name)
     }
 
