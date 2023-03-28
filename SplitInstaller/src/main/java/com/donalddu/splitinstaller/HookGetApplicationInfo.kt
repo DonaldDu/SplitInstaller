@@ -11,8 +11,8 @@ import java.lang.reflect.Method
 
 internal class HookGetApplicationInfo(private val origin: Any) : InvocationHandler {
     val splits: MutableSet<File> = mutableSetOf()
-    var splitNames: Array<String>? = null
-    var splitDirs: Array<String>? = null
+    private var splitNames: Array<String>? = null
+    private var splitDirs: Array<String>? = null
 
     override fun invoke(proxy: Any?, method: Method, args: Array<Any>): Any? {
         //mPM.getPackageInfo(packageName, flags, mContext.getUserId())

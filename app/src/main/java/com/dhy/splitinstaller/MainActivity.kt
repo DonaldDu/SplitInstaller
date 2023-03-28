@@ -24,7 +24,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             btInstallPlugin.setOnClickListener {
-                SplitInstaller.load(context, cacheDir, setOf(pluginApk))
+                SplitInstaller.load(context, setOf(pluginApk))
             }
 
             btClearApplicationUserData.setOnClickListener {

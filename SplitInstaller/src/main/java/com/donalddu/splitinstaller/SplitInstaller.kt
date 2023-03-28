@@ -18,13 +18,14 @@ object SplitInstaller {
 
     /**
      * @param splits apk files to load append
+     * @param splitOptDir null dir means disable DEX opt
      * */
     @JvmStatic
-    fun load(context: Context, splitOptDir: File, splits: Set<File>) {
+    fun load(context: Context, splits: Set<File>, splitOptDir: File? = null) {
         if (hookGetApplicationInfo.splits.containsAll(splits)) return
 
         hookGetApplicationInfo.addSplits(splits)
-        SplitTempClassLoader.install(context.packageName, splitOptDir)
+        if (splitOptDir != null) SplitTempClassLoader.install(context.packageName, splitOptDir)
         ReflectHelper.dispatchPackageBroadcast(context.packageName)
     }
 
