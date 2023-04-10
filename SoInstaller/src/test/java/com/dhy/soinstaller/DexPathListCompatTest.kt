@@ -31,7 +31,6 @@ open class DexPathListCompatTest {
 
     @Test
     fun addNativePathToHead() {
-
         Assert.assertTrue(soApk.exists())
         val tmp = File(soApk.parent, "tmp")
         val folder = "lib/x86_64"
