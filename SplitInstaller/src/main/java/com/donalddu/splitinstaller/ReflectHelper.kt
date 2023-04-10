@@ -17,6 +17,9 @@ object ReflectHelper {
     internal val sPackageManager: FieldDelegate<Any> get() = FieldDelegate(currentActivityThread, "sPackageManager")
     private val mPackages: ArrayMap<*, *> get() = currentActivityThread.getFieldValue("mPackages") as ArrayMap<*, *>
 
+    /**
+     * black list api
+     * */
     private val dispatchPackageBroadcastMethod: Method
         get():Method {
             return mAppThread.javaClass.method("dispatchPackageBroadcast", Int::class, Array<String>::class)

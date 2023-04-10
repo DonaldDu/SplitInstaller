@@ -15,13 +15,15 @@ internal class SplitTempClassLoader(
     private val mDefaultClassLoader: FieldDelegate<ClassLoader>,
     private val optimizedDirectory: File
 ) : PathClassLoader("", parent) {
-    private val pathListF = BaseDexClassLoader::class.field("pathList")
-    private val pathList by lazy { pathListF.get(parent) }
+    private val pathList by lazy {
+        BaseDexClassLoader::class.field("pathList").get(parent)
+    }
     private val addDexPathDelegate by lazy {
         pathList.javaClass.method("addDexPath", String::class, File::class)
     }
-    private val addNativePathDelegate by lazy {
-        pathList.javaClass.method("addNativePath", Collection::class)
+
+    fun addNativePath(libPaths: Collection<String>) {
+        SplitInstallerDispatcher.onAddNativePath(pathList, libPaths)
     }
 
     fun addDexPath(dexPath: String) {
@@ -29,12 +31,7 @@ internal class SplitTempClassLoader(
         addDexPathDelegate.invoke(pathList, dexPath, optimizedDirectory)
         mDefaultClassLoader.value = parent//restore to default classLoader
         Log.i(TAG, "restore to default classLoader")
-        SplitInstalledDispatcher.onSplitInstalled()
-    }
-
-    fun addNativePath(libPaths: Collection<String>) {
-        Log.i(TAG, "addNativePath ${libPaths.joinToString()}")
-        addNativePathDelegate.invoke(pathList, libPaths)
+        SplitInstallerDispatcher.onSplitInstalled()
     }
 
     companion object {

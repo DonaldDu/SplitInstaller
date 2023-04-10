@@ -4,7 +4,9 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.dhy.splitinstaller.databinding.ActivityMainBinding
+import com.donalddu.splitinstaller.NativeSplitInstallerListener
 import com.donalddu.splitinstaller.SplitInstaller
+import dalvik.system.PathClassLoader
 import java.io.File
 
 class MainActivity : AppCompatActivity() {
@@ -15,6 +17,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         binding.apply {
             btLoadPluginAssets.setOnClickListener {
+                findLibrary()
                 val msg = try {
                     assets.open("a.txt").use { txt -> txt.readBytes().decodeToString() }
                 } catch (e: Exception) {
@@ -24,7 +27,8 @@ class MainActivity : AppCompatActivity() {
             }
 
             btInstallPlugin.setOnClickListener {
-                SplitInstaller.load(context, setOf(pluginApk))
+                NativeSplitInstallerListener.redirect(pluginApk, File(filesDir, "SplitSO"))
+                SplitInstaller.load(context, setOf(pluginApk), cacheDir)
             }
 
             btClearApplicationUserData.setOnClickListener {
@@ -40,6 +44,13 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun findLibrary() {
+        val loader = classLoader as PathClassLoader
+        val name = loader.findLibrary("imagepipeline")
+        println("findLibrary: $name")
+        Toast.makeText(context, "findLibrary: $name", Toast.LENGTH_SHORT).show()
     }
 
     private val pluginApk by lazy {

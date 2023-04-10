@@ -18,6 +18,10 @@ android {
     }
 
     buildTypes {
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -54,7 +58,7 @@ dependencies {
 configurations.all {
     resolutionStrategy.eachDependency { DependencyResolveDetails details ->
         def req = details.requested
-        if (req.group == 'org.jetbrains.kotlin') {
+        if (req.group == "org.jetbrains.kotlin") {
             details.useVersion(app_kotlin_version)
         }
     }
