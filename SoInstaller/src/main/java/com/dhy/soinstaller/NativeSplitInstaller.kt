@@ -20,7 +20,7 @@ object NativeSplitInstaller {
         val versionFile = File(apkSoDir, "${Build.CPU_ABI}.version")
         val lastModified = if (versionFile.exists()) versionFile.readText().toLong() else null
         val soRoot = File(apkSoDir, Build.CPU_ABI)
-        zipDirRedirect["${splitApk}!/lib/${Build.CPU_ABI}"] = soRoot.absolutePath
+        zipDirRedirect[splitApk.absolutePath] = soRoot.absolutePath
         if (lastModified == splitApk.lastModified()) return
 
         soRoot.deleteRecursively()//删除所有旧版本so文件
@@ -43,7 +43,18 @@ object NativeSplitInstaller {
         zip.close()
     }
 
+    private fun getSoDir(splitApk: File): String? {
+        val dir = zipDirRedirect[splitApk.absolutePath]
+        if (dir != null && File(dir).exists()) return dir
+        return null
+    }
+
     @JvmStatic
+    fun addNativePath(pathList: Any, splitApk: File) {
+        val path = getSoDir(splitApk) ?: return
+        DexPathListCompat.addNativePath(pathList, listOf(path))
+    }
+
     fun addNativePath(pathList: Any, libPaths: Collection<String>) {
         val redirects = mutableListOf<String>()
         for (path in libPaths) {

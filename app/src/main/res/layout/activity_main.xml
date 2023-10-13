@@ -7,6 +7,13 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
+    <CheckBox
+        android:id="@+id/cbAutoTest"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="autoTest\n默认勾选后，启动页面则直接开始测试"
+        android:textAllCaps="false" />
+
     <Button
         android:id="@+id/btInstallPlugin"
         android:layout_width="wrap_content"
@@ -28,6 +35,19 @@
         android:text="loadPluginAssets"
         android:textAllCaps="false" />
 
+    <Button
+        android:id="@+id/btFindLib"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="find Plugin lib"
+        android:textAllCaps="false" />
+
+    <Button
+        android:id="@+id/btOpt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="try opt"
+        android:textAllCaps="false" />
 
     <Button
         android:id="@+id/btClearApplicationUserData"
@@ -36,4 +56,10 @@
         android:text="clearApplicationUserData"
         android:textAllCaps="false" />
 
+    <Button
+        android:id="@+id/btRestart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="RestartApp"
+        android:textAllCaps="false" />
 </LinearLayout>

@@ -1,5 +1,6 @@
 package com.dhy.splitinstaller
 
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -9,20 +10,23 @@ import com.donalddu.splitinstaller.NativeSplitInstallerListener
 import com.donalddu.splitinstaller.SplitInstaller
 import com.donalddu.splitinstaller.SplitInstallerDispatcher
 import com.donalddu.splitinstaller.SplitInstallerListener
+import com.tencent.tinker.loader.TinkerDexOptimizer
 import dalvik.system.PathClassLoader
+import me.weishu.reflection.Reflection
 import java.io.File
 
 class MainActivity : AppCompatActivity(), SplitInstallerListener {
     private val TAG = "Main"
     private val context get() = this
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
+    private val optDir by lazy { File(cacheDir, "optDir") }
+    private val autoTestMode get() = binding.cbAutoTest.isChecked
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         SplitInstallerDispatcher.addListener(this)
         binding.apply {
             btLoadPluginAssets.setOnClickListener {
-                findLibrary()
                 val msg = try {
                     assets.open("a.txt").use { txt -> txt.readBytes().decodeToString() }
                 } catch (e: Exception) {
@@ -33,17 +37,19 @@ class MainActivity : AppCompatActivity(), SplitInstallerListener {
                 DeviceStatus.it.assetOK = msg == "123"
                 autoTest()
             }
-
+            btFindLib.setOnClickListener {
+                findLibrary()
+            }
             btInstallPlugin.setOnClickListener {
                 NativeSplitInstallerListener.redirect(pluginApk, File(filesDir, "SplitSO"))
-                SplitInstaller.load(context, setOf(pluginApk), cacheDir)
+                SplitInstaller.load(context, setOf(pluginApk), optDir)
                 btShowPluginPage.isEnabled = true
             }
 
             btClearApplicationUserData.setOnClickListener {
                 clearApplicationUserData()
             }
-            btShowPluginPage.isEnabled = false
+            btShowPluginPage.isEnabled = findLibrary(false)
             btShowPluginPage.setOnClickListener {
                 try {
                     startComponent("com.dhy.plugin.PluginActivity")
@@ -55,10 +61,45 @@ class MainActivity : AppCompatActivity(), SplitInstallerListener {
                 }
                 autoTest()
             }
+            btOpt.setOnClickListener {
+                tryOpt()
+            }
+            btRestart.setOnClickListener {
+                restartApp()
+            }
         }
         binding.btInstallPlugin.post {
             autoTest()
         }
+    }
+
+    private fun tryOpt() {
+        if (Build.VERSION.SDK_INT >= 28) {
+            try {
+                Reflection.unseal(context)
+            } catch (e: Exception) {
+                Log.e("BypassProvider", "Unable to unseal hidden api access", e)
+            }
+        }
+        @Suppress("LocalVariableName")
+        val TAG = "TinkerDexOptimizer"
+        val cb = object : TinkerDexOptimizer.ResultCallback {
+            override fun onStart(dexFile: File, optimizedDir: File) {
+                Log.i(TAG, "onStart $dexFile")
+            }
+
+            override fun onSuccess(dexFile: File, optimizedDir: File, optimizedFile: File) {
+                Log.i(TAG, "onSuccess $dexFile, optimizedDir $optimizedDir, optimizedFile $optimizedFile")
+            }
+
+            override fun onFailed(dexFile: File, optimizedDir: File, thr: Throwable) {
+                Log.e(TAG, "onFailed $dexFile, optimizedDir $optimizedDir, ${thr.message}")
+                thr.printStackTrace()
+            }
+        }
+        TinkerApp()
+        optDir.mkdirs()
+        TinkerDexOptimizer.optimizeAll(this, listOf(pluginApk), optDir, true, true, cb)
     }
 
     override fun onDestroy() {
@@ -66,12 +107,15 @@ class MainActivity : AppCompatActivity(), SplitInstallerListener {
         SplitInstallerDispatcher.removeListener(this)
     }
 
-    private fun findLibrary() {
+    private fun findLibrary(isTest: Boolean = true): Boolean {
         val loader = classLoader as PathClassLoader
         val name = loader.findLibrary("imagepipeline")
         Log.i(TAG, "findLibrary: $name")
-        Toast.makeText(context, "findLibrary: $name", Toast.LENGTH_SHORT).show()
-        DeviceStatus.it.soOK = name != null
+        if (isTest) {
+            Toast.makeText(context, "findLibrary: $name", Toast.LENGTH_SHORT).show()
+            DeviceStatus.it.soOK = name != null
+        }
+        return name != null
     }
 
     override fun onSplitInstalled() {
@@ -81,6 +125,7 @@ class MainActivity : AppCompatActivity(), SplitInstallerListener {
     }
 
     private fun autoTest() {
+        if (!autoTestMode) return
         val autoTest = getString(R.string.autoTest) == "1"
         val hasToken = getString(R.string.X_LC_ID).isNotEmpty()
         if (autoTest && hasToken) {

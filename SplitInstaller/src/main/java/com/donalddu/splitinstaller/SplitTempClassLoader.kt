@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.util.Log
 import com.dhy.easyreflect.field
 import com.dhy.easyreflect.method
+import com.dhy.soinstaller.NativeSplitInstaller
 import com.donalddu.splitinstaller.SplitInstaller.TAG
 import dalvik.system.BaseDexClassLoader
 import dalvik.system.PathClassLoader
@@ -30,8 +31,13 @@ internal class SplitTempClassLoader(
         Log.i(TAG, "addDexPath $dexPath")
         addDexPathDelegate.invoke(pathList, dexPath, optimizedDirectory)
         mDefaultClassLoader.value = parent//restore to default classLoader
+        addNativePath(dexPath)
         Log.i(TAG, "restore to default classLoader")
         SplitInstallerDispatcher.onSplitInstalled()
+    }
+
+    private fun addNativePath(apkPath: String) {
+        NativeSplitInstaller.addNativePath(pathList, File(apkPath))
     }
 
     companion object {
