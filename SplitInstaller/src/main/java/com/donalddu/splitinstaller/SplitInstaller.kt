@@ -10,8 +10,9 @@ import java.lang.reflect.Proxy
 
 @SuppressLint("PrivateApi")
 object SplitInstaller {
-    internal const val TAG = "SplitLoader"
+    internal const val TAG = "SplitInstaller"
     private var unseal = false
+    private var hostPackageName: String? = null
 
     /**
      * @param splits apk files to load append
@@ -37,11 +38,12 @@ object SplitInstaller {
                 Log.e("BypassProvider", "Unable to unseal hidden api access", e)
             }
         }
+        hostPackageName = context.packageName
     }
 
     private val hookGetApplicationInfo: HookGetApplicationInfo by lazy {
         val sPackageManager = ReflectHelper.sPackageManager
-        val hook = HookGetApplicationInfo(sPackageManager.value!!)
+        val hook = HookGetApplicationInfo(sPackageManager.value!!, hostPackageName!!)
         val packageManagerClazz = Class.forName("android.content.pm.IPackageManager")
         val delegate = Proxy.newProxyInstance(javaClass.classLoader, arrayOf(packageManagerClazz), hook)
         sPackageManager.value = delegate
